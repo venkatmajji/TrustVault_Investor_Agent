@@ -2,7 +2,10 @@
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
-from langchain.embeddings import OpenAIEmbeddings
+
+from langchain_community.embeddings import OpenAIEmbeddings
+
+
 from langchain.vectorstores import FAISS
 from langchain.document_loaders import PyPDFLoader, TextLoader
 import streamlit as st
@@ -24,7 +27,8 @@ additional_docs = [
 
 all_docs = pdf_texts + additional_docs
 
-embeddings = OpenAIEmbeddings()
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
 vectorstore = FAISS.from_texts(all_docs, embeddings)
 
 llm = ChatOpenAI(model_name="gpt-4o", temperature=0)
