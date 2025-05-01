@@ -1,1 +1,10 @@
-PLACEHOLDER: Replace with your real one pager PDF
+Investor One-Pager - Verifiable AI Platform (TrustVault)
+ The Problem- LLMs are widely adopted, but outputs are unverifiable and non-compliant.- Regulations (EU AI Act, HIPAA, SOC 2) demand audit trails and traceability.- DIY solutions are fragile and fail audits.
+ The Solution - TrustVault- 3-line SDK captures every LLM interaction.- Immutable WORM storage + Merkle hashing + daily PDF certificates.- API + CLI to retrieve, verify, and export logs with cryptographic proof.
+ Why Now- EU AI Act and enterprise AI buyers demand verifiable logs.- SOC 2 and security teams ask for immutable audit logs.- First-to-market advantage for compliance-grade AI traceability.
+ Market Size- TAM: $15B AI governance and audit by 2030.- SAM: $2.5B regulated markets (fintech, health, enterprise).- SOM: $100M initial wedge for AI traceability solutions.
+ Business Model- Free -> $199 Pro -> $999 Compliance -> $50K+ Enterprise.- Usage-based upsell with Evaluator Proxy ($0.03 / 1K calls).
+Go-to-Market- Open-source SDK and free tier for devs.- Compliance champions and SOC 2 partners for enterprise.- Cloud marketplaces for scale.
+ Traction- 2 design partners live (FinPay, MediData).- SOC 2 Type I in progress.- Evaluator marketplace launching Q4 2025.
+ Team- CEO: ex-Microsoft Cloud/AI GTM- CTO: ex-Datadog observability infra- CISO: ex-PwC SOC 2 auditor- Advisors: ex-OpenAI compliance, EU regulator
+ Funding Ask- Raising $3M seed to reach $1M ARR in 15 months.- Targeting AI infra and GRC-focused investors.PLACEHOLDER: Replace with your real one pager PDF
