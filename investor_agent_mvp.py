@@ -107,17 +107,14 @@ example_questions = [
     "Why should we invest?"
 ]
 
-cols = st.columns(3)
+cols = st.columns(2)
 for idx, q in enumerate(example_questions):
-    col = cols[idx % 3]
+    col = cols[idx % 2]
     with col:
         if st.button(f"👉 {q}", key=q):
             clicked_question = q
 
 clicked_question = None
-for q in example_questions:
-    if st.button(q):
-        clicked_question = q
 
 query = clicked_question or st.text_input("Ask your question here:")
 
