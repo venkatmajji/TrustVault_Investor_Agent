@@ -1,4 +1,4 @@
-# Investor Pitch Agent - Production Ready Landing Page with Smart Suggestions + Session Memory + Downloadable Slides + Auto Email + Styled Suggested Questions
+# Investor Pitch Agent - Fixed Version with Suggested Question Click Fix + Updated Header Text + Session State
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -89,16 +89,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-#st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Flat_tick_icon.svg/2048px-Flat_tick_icon.svg.png", width=80)
+# Header + intro
 st.markdown("<div class='header-title'>TrustVault Investor Agent</div>", unsafe_allow_html=True)
-st.markdown("<div class='subheader-text'> <b>TrustVault solves the problem of unverifiable and non-compliant outputs from LLMs. </b></div>", unsafe_allow_html=True)
-st.markdown("<div class='subheader-text'> <b>It addresses the need for audit trails and traceability as required by regulations such as the EU AI Act, HIPAA, and SOC 2. </b></div>", unsafe_allow_html=True)
-st.markdown("<div class='subheader-text'> <b>TrustVault provides an immutable audit layer for AI and LLMs, capturing, certifying, and verifying all interactions to ensure compliance and verifiability. </b></div>", unsafe_allow_html=True)
-
+st.markdown("<div class='subheader-text'><b>TrustVault solves the problem of unverifiable and non-compliant outputs from LLMs.</b></div>", unsafe_allow_html=True)
+st.markdown("<div class='subheader-text'><b>It addresses the need for audit trails and traceability as required by regulations such as the EU AI Act, HIPAA, and SOC 2.</b></div>", unsafe_allow_html=True)
+st.markdown("<div class='subheader-text'><b>TrustVault provides an immutable audit layer for AI and LLMs, capturing, certifying, and verifying all interactions to ensure compliance and verifiability.</b></div>", unsafe_allow_html=True)
 st.markdown("<div class='subheader-text'>Ask our AI agent or browse/download the pitch deck below. Your questions answered in real-time.</div>", unsafe_allow_html=True)
-
 st.markdown("<div class='section-header'>💬 Ask TrustVault Investor Agent</div>", unsafe_allow_html=True)
 
+# Suggested questions
 example_questions = [
     "What problem does TrustVault solve?",
     "How do you make money?",
@@ -107,6 +106,9 @@ example_questions = [
     "How big is the market opportunity?",
     "Why should we invest?"
 ]
+
+if "query" not in st.session_state:
+    st.session_state.query = None
 
 cols = st.columns(2)
 clicked_question = None
@@ -117,23 +119,28 @@ for idx, q in enumerate(example_questions):
         if st.button(f"👉 {q}", key=q):
             clicked_question = q
 
-query = clicked_question or st.text_input("Ask your question here:")
+if clicked_question:
+    st.session_state.query = clicked_question
+
+query = st.session_state.query or st.text_input("Ask your question here:")
 
 if query:
     result = qa({'question': query})
     answer = result['answer']
     st.markdown(f"<div class='chat-box'><b>You:</b> {query}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
     log_to_trustvault(query, answer)
 
     st.markdown("#### Suggested Next Question:")
     suggested_question = random.choice([q for q in example_questions if q != query])
-    if st.button(f"➡️ {suggested_question}"):
-        query = suggested_question
+    if st.button(f"➡️ {suggested_question}", key="next_question"):
+        st.session_state.query = suggested_question
 
+# Pitch deck viewer
 st.markdown("<div class='section-header'>📊 Investor Pitch Deck Viewer & Download</div>", unsafe_allow_html=True)
 st.components.v1.iframe("https://docs.google.com/presentation/d/e/2PACX-1vSDzdc5x-xYZn3vCGhBiUxtK0Tmdkd9ufjXmja6mMaLcIyLkR9M61j_YszleNivSA/embed?start=false&loop=false&delayms=3000", height=550)
 
+# Download pitch deck
 st.markdown("### 📥 Download Pitch Deck PDF")
 with st.form("download_form"):
     email = st.text_input("Enter your email to download the pitch deck")
