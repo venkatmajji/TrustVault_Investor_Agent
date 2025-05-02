@@ -91,7 +91,7 @@ st.markdown("""
 
 #st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Flat_tick_icon.svg/2048px-Flat_tick_icon.svg.png", width=80)
 st.markdown("<div class='header-title'>TrustVault Investor Agent</div>", unsafe_allow_html=True)
-st.markdown("<div class='subheader-text'>TrustVault solves the problem of unverifiable and non-compliant outputs from LLMs (Large Language Models). It addresses the need for audit trails and traceability as required by regulations such as the EU AI Act, HIPAA, and SOC 2. TrustVault provides an immutable audit layer for AI and LLMs, capturing, certifying, and verifying all interactions to ensure compliance and verifiability.</div>", unsafe_allow_html=True)
+st.markdown("<div class='subheader-text'>TrustVault solves the problem of unverifiable and non-compliant outputs from LLMs (Large Language Models). \n It addresses the need for audit trails and traceability as required by regulations such as the EU AI Act, HIPAA, and SOC 2. TrustVault provides an immutable audit layer for AI and LLMs, capturing, certifying, and verifying all interactions to ensure compliance and verifiability.</div>", unsafe_allow_html=True)
 
 st.markdown("<div class='subheader-text'>Ask our AI agent or browse/download the pitch deck below. Your questions answered in real-time.</div>", unsafe_allow_html=True)
 
