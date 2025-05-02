@@ -133,8 +133,21 @@ if query:
 
     st.markdown("#### Suggested Next Question:")
     suggested_question = random.choice([q for q in example_questions if q != query])
-    if st.button(f"➡️ {suggested_question}", key="next_question"):
-        st.session_state.query = suggested_question
+    
+   if st.button(f"➡️ {suggested_question}", key="next_question"):
+    # Immediately run the agent when suggested clicked
+    query = suggested_question
+    result = qa({'question': query})
+    answer = result['answer']
+    
+    st.markdown(f"<div class='chat-box'><b>You:</b> {query}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\\n', '<br>')}</div>", unsafe_allow_html=True)
+    
+    log_to_trustvault(query, answer)
+    
+    # Update session state query for next render
+    st.session_state.query = query
+
 
 # Pitch deck viewer
 st.markdown("<div class='section-header'>📊 Investor Pitch Deck Viewer & Download</div>", unsafe_allow_html=True)
