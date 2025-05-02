@@ -1,4 +1,4 @@
-# Investor Pitch Agent - Production Ready Landing Page with Smart Suggestions + Session Memory + Downloadable Slides + Auto Email
+# Investor Pitch Agent - Production Ready Landing Page with Smart Suggestions + Session Memory + Downloadable Slides + Auto Email + Styled Suggested Questions
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -27,25 +27,20 @@ def send_pitch_deck_email(receiver_email):
     body = "Thank you for your interest in TrustVault! Please find attached our latest investor pitch deck. Feel free to reply to this email or book a time with our founder for deeper discussion."
     msg.attach(MIMEBase('application', 'octet-stream'))
 
-    # Attach PDF
     filename = "TrustVault_Pitch_Deck.pdf"
     with open("TrustVault_Investor_One_Pager.pdf", "rb") as attachment:
         part = MIMEBase("application", "octet-stream")
         part.set_payload(attachment.read())
     encoders.encode_base64(part)
-    part.add_header(
-        "Content-Disposition",
-        f"attachment; filename= {filename}",
-    )
+    part.add_header("Content-Disposition", f"attachment; filename= {filename}")
     msg.attach(part)
 
-    # Send email
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, receiver_email, msg.as_string())
 
-# --- Load documents (PDF + One Pager + Landing Page Summary) ---
+# --- Load documents ---
 pdf_loader = PyPDFLoader("TrustVault_Investor_One_Pager.pdf")
 pdf_docs = pdf_loader.load()
 pdf_texts = [d.page_content for d in pdf_docs]
@@ -66,20 +61,20 @@ all_docs = pdf_texts + additional_docs
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 vectorstore = FAISS.from_texts(all_docs, embeddings)
 
-# --- Create memory (session based) ---
+# --- Create memory ---
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
-# --- Create conversational retrieval chain with memory ---
-llm = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0)
+# --- Conversational retrieval chain ---
+llm = ChatOpenAI(model_name="gpt-4o", temperature=0)
 qa = ConversationalRetrievalChain.from_llm(llm, vectorstore.as_retriever(), memory=memory)
 
-# --- TrustVault logger prototype ---
+# --- Logger ---
 def log_to_trustvault(question, answer):
     timestamp = datetime.datetime.now().isoformat()
     with open("trustvault_log.txt", "a") as f:
         f.write(f"[{timestamp}] Q: {question}\nA: {answer}\n\n")
 
-# --- Streamlit UI (Production Landing Page) ---
+# --- Streamlit UI ---
 st.set_page_config(page_title="TrustVault Investor Pitch Agent", page_icon="📊", layout="wide")
 
 st.markdown("""
@@ -89,6 +84,8 @@ st.markdown("""
 .subheader-text {text-align: center;color: gray;margin-bottom: 20px;font-size: 18px;}
 .cta-button {background-color: #2563eb;color: white;padding: 12px 24px;border-radius: 8px;text-decoration: none;font-weight: bold;display: inline-block;}
 .section-header {background-color: #eff6ff;padding: 10px;border-radius: 8px;color: #2563eb;font-weight: bold;text-align: center;font-size: 20px;margin-bottom: 10px;}
+.suggestion-button {background-color: #e0e7ff;color: #1e3a8a;padding: 10px 18px;border-radius: 20px;font-size: 16px;margin: 5px;cursor: pointer;text-align: center;}
+.suggestion-button:hover {background-color: #c7d2fe;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -108,15 +105,15 @@ example_questions = [
 ]
 
 cols = st.columns(2)
+clicked_question = None
+
 for idx, q in enumerate(example_questions):
     col = cols[idx % 2]
     with col:
         if st.button(f"👉 {q}", key=q):
             clicked_question = q
 
-clicked_question = None
-
-query = clicked_question or st.text_input("Any other questions? Type here:")
+query = clicked_question or st.text_input("Ask your question here:")
 
 if query:
     result = qa({'question': query})
@@ -131,9 +128,7 @@ if query:
         query = suggested_question
 
 st.markdown("<div class='section-header'>📊 Investor Pitch Deck Viewer & Download</div>", unsafe_allow_html=True)
-#st.components.v1.iframe("https://docs.google.com/presentation/d/e/2PACX-1vQDzXXXXX-YOUR-SLIDES-URL-HERE/embed?start=false&loop=false&delayms=3000", height=550)
 st.components.v1.iframe("https://docs.google.com/presentation/d/e/2PACX-1vSDzdc5x-xYZn3vCGhBiUxtK0Tmdkd9ufjXmja6mMaLcIyLkR9M61j_YszleNivSA/embed?start=false&loop=false&delayms=3000", height=550)
-
 
 st.markdown("### 📥 Download Pitch Deck PDF")
 with st.form("download_form"):
