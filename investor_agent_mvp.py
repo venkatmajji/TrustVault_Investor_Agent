@@ -116,7 +116,7 @@ for idx, q in enumerate(example_questions):
 
 clicked_question = None
 
-query = clicked_question or st.text_input("Ask your question here:")
+query = clicked_question or st.text_input("Any other questions? Type here:")
 
 if query:
     result = qa({'question': query})
