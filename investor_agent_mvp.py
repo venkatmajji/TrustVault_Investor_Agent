@@ -1,23 +1,28 @@
-import streamlit as st
+# Investor Pitch Agent - FINAL (No Input Box, Expanded Questions, Intelligent Answer Fallback)
+
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.document_loaders import PyPDFLoader
+import streamlit as st
+import random
 import datetime
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 
+# --- Email sending utility ---
 def send_pitch_deck_email(receiver_email):
     sender_email = st.secrets["EMAIL_ADDRESS"]
     sender_password = st.secrets["EMAIL_PASSWORD"]
+
     msg = MIMEMultipart()
-    msg["From"] = sender_email
-    msg["To"] = receiver_email
-    msg["Subject"] = "TrustVault Pitch Deck + Thank You"
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = "TrustVault Pitch Deck + Thank You"
 
     filename = "TrustVault_Investor_One_Pager.pdf"
     with open(filename, "rb") as attachment:
@@ -32,6 +37,7 @@ def send_pitch_deck_email(receiver_email):
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, receiver_email, msg.as_string())
 
+# --- Load documents ---
 pdf_loader = PyPDFLoader("TrustVault_Investor_One_Pager.pdf")
 pdf_docs = pdf_loader.load()
 pdf_texts = [d.page_content for d in pdf_docs]
@@ -48,9 +54,11 @@ additional_docs = [
 
 all_docs = pdf_texts + additional_docs
 
+# --- Embed and index ---
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 vectorstore = FAISS.from_texts(all_docs, embeddings)
 
+# --- Conversational retrieval chain ---
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 llm = ChatOpenAI(model_name="gpt-4o", temperature=0)
 qa = ConversationalRetrievalChain.from_llm(llm, vectorstore.as_retriever(), memory=memory)
@@ -68,13 +76,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='header-title'>TrustVault Investor Agent</div>", unsafe_allow_html=True)
-st.markdown("<div class='subheader-text'><b>TrustVault solves the problem...</b></div>", unsafe_allow_html=True)
+st.markdown("<div class='subheader-text'><b>TrustVault solves the problem of unverifiable and non-compliant outputs from LLMs.</b></div>", unsafe_allow_html=True)
+st.markdown("<div class='subheader-text'><b>It addresses the need for audit trails and traceability as required by regulations such as the EU AI Act, HIPAA, and SOC 2.</b></div>", unsafe_allow_html=True)
+st.markdown("<div class='subheader-text'><b>TrustVault provides an immutable audit layer for AI and LLMs, capturing, certifying, and verifying all interactions to ensure compliance and verifiability.</b></div>", unsafe_allow_html=True)
+st.markdown("<div class='subheader-text'>Ask our AI agent or browse/download the pitch deck below. Your questions answered in real-time.</div>", unsafe_allow_html=True)
 st.markdown("<div class='section-header'>💬 Ask TrustVault Investor Agent</div>", unsafe_allow_html=True)
 
-if "user_query" not in st.session_state:
-    st.session_state.user_query = ""
 if "answer" not in st.session_state:
     st.session_state.answer = ""
+
 if "selected_question" not in st.session_state:
     st.session_state.selected_question = ""
 
@@ -84,7 +94,10 @@ example_questions = [
     "👉 What is your roadmap for the next 12 months?",
     "👉 Who is your competition?",
     "👉 How big is the market opportunity?",
-    "👉 Why should we invest?"
+    "👉 Why should we invest?",
+    "👉 Who is the founding team?",
+    "👉 Is there founder to product fit?",
+    "👉 What are the risks of investing?"
 ]
 
 st.markdown("#### Example Questions (Click to Ask)")
@@ -92,22 +105,19 @@ cols = st.columns(3)
 for idx, q in enumerate(example_questions):
     if cols[idx % 3].button(q, key=q):
         st.session_state.selected_question = q
-        st.session_state.user_query = ""
         st.session_state.answer = ""
 
 if st.session_state.selected_question:
     result = qa({'question': st.session_state.selected_question})
-    st.session_state.answer = result['answer']
+    answer = result['answer']
+
+    if "I don't know" in answer or len(answer.strip()) < 10:
+        answer = "This is not covered directly in our materials, but here is my best insight: TrustVault is committed to compliance and verifiability, which makes it a strong candidate in regulated industries."
+
+    st.session_state.answer = answer
     st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {st.session_state.answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
 
-user_query = st.text_input("Or type your own question here:", value=st.session_state.user_query)
-if user_query:
-    st.session_state.user_query = user_query
-    st.session_state.selected_question = ""
-    result = qa({'question': user_query})
-    st.session_state.answer = result['answer']
-    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {st.session_state.answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
-
+st.markdown("<div class='section-header'>📊 Investor Pitch Deck Viewer & Download</div>", unsafe_allow_html=True)
 st.components.v1.iframe("https://docs.google.com/presentation/d/e/2PACX-1vSDzdc5x-xYZn3vCGhBiUxtK0Tmdkd9ufjXmja6mMaLcIyLkR9M61j_YszleNivSA/embed?start=false&loop=false&delayms=3000", height=550)
 
 st.markdown("### 📥 Download Pitch Deck PDF")
@@ -117,3 +127,10 @@ with st.form("download_form"):
     if submitted and email:
         st.success(f"Thank you! We'll email you the deck shortly at {email}.")
         send_pitch_deck_email(email)
+
+st.markdown("""
+<hr>
+<p style='text-align:center; color: gray;'>Interested in learning more or booking an intro call?</p>
+<p style='text-align:center;'><a class='cta-button' href='mailto:founder@trustvault.ai'>📩 Book Investor Intro Call</a></p>
+<p style='text-align:center; color: gray;'>© 2025 TrustVault.ai — All rights reserved.</p>
+""", unsafe_allow_html=True)
