@@ -7,7 +7,7 @@ Interactive AI Agent to pitch TrustVault to investors.
 
 ```bash
 pip install -r requirements.txt
-streamlit run investor_agent_mvp.py
+streamlit run Home.py
 ```
 
 ## How to deploy on Streamlit Cloud
