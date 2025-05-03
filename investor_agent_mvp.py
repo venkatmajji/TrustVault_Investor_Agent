@@ -1,4 +1,4 @@
-# Investor Pitch Agent - FINAL FIXED VERSION (Proper Clear on Suggested Click + Unified Answer)
+# Investor Pitch Agent - FINAL PATCHED VERSION (Perfect Clear Logic + No Sticky Textbox + Unified Answer)
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -100,6 +100,9 @@ if "user_query" not in st.session_state:
 if "answer" not in st.session_state:
     st.session_state.answer = ""
 
+if "selected_question" not in st.session_state:
+    st.session_state.selected_question = ""
+
 example_questions = [
     "What problem does TrustVault solve?",
     "How do you make money?",
@@ -111,15 +114,14 @@ example_questions = [
 
 st.markdown("#### Example Questions (Click to Ask)")
 cols = st.columns(3)
-selected_question = None
 for idx, q in enumerate(example_questions):
     if cols[idx % 3].button(q, key=q):
-        selected_question = q
+        st.session_state.selected_question = q
         st.session_state.user_query = ""
         st.session_state.answer = ""
 
-if selected_question:
-    result = qa({'question': selected_question})
+if st.session_state.selected_question:
+    result = qa({'question': st.session_state.selected_question})
     answer = result['answer']
     st.session_state.answer = answer
 
@@ -129,9 +131,9 @@ if st.session_state.answer:
 user_query = st.text_input("Or type your own question here:", value=st.session_state.user_query)
 if user_query:
     st.session_state.user_query = user_query
+    st.session_state.selected_question = ""
     result = qa({'question': user_query})
     answer = result['answer']
-
     st.session_state.answer = answer
 
 if st.session_state.answer:
