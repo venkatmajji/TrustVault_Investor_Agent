@@ -5,36 +5,88 @@ st.set_page_config(page_title="TrustVault - Immutable Audit Layer for AI", page_
 
 st.markdown("""
 <style>
-.header-title {font-size: 50px;color: #2563eb;font-weight: bold;text-align: center;margin-bottom: 20px;margin-top: 30px;}
-.subheader-text {text-align: center;color: #4b5563;margin-bottom: 40px;font-size: 22px;}
-.section-header {background-color: #eff6ff;padding: 14px;border-radius: 8px;color: #2563eb;font-weight: bold;text-align: center;font-size: 26px;margin-bottom: 10px;}
-.link-box {background-color: #ffffff;padding: 24px;border-radius: 12px;border: 2px solid #2563eb;margin: 10px;text-align: center;}
-.link-box a {text-decoration: none; color: #2563eb; font-size: 20px; font-weight: bold;}
-.link-box:hover {background-color: #dbeafe;}
+body {
+    background-color: #f8f9fa;
+}
+.hero {
+    text-align: center;
+    padding: 80px 20px 40px 20px;
+}
+.hero h1 {
+    font-size: 60px;
+    color: #2563eb;
+    margin-bottom: 20px;
+}
+.hero p {
+    font-size: 24px;
+    color: #555;
+    margin-bottom: 40px;
+}
+.cta-button {
+    background-color: #2563eb;
+    color: white;
+    padding: 16px 40px;
+    border-radius: 10px;
+    font-size: 20px;
+    text-decoration: none;
+    display: inline-block;
+    margin: 10px;
+}
+.cta-button:hover {
+    background-color: #1d4ed8;
+}
+.feature-section {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.feature-section h2 {
+    font-size: 36px;
+    color: #2563eb;
+    margin-bottom: 20px;
+}
+.feature-section p {
+    font-size: 18px;
+    color: #555;
+}
+.footer {
+    text-align: center;
+    padding: 40px;
+    color: gray;
+}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='header-title'>TrustVault</div>", unsafe_allow_html=True)
-st.markdown("<div class='subheader-text'>The Immutable Audit Layer for AI & LLMs — Capture, Certify, Verify.</div>", unsafe_allow_html=True)
-st.markdown("<div class='section-header'>🚀 Explore TrustVault</div>", unsafe_allow_html=True)
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.markdown("""
-    <div class='link-box'>
-        <a href="/Investor_Pitch_Agent">💼 Investor Agent → Learn and Ask About Our Company</a>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    st.markdown("""
-    <div class='link-box'>
-        <a href="mailto:founder@trustvault.ai">📩 Contact Founders → Book Intro Call</a>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown("""
+<div class="hero">
+    <h1>TrustVault</h1>
+    <p>The Immutable Audit Layer for AI & LLMs. Capture. Certify. Verify. Comply.</p>
+    <a href="/Investor_Pitch_Agent" class="cta-button">💼 Launch Investor Agent</a>
+    <a href="mailto:founder@trustvault.ai" class="cta-button">📩 Contact Founders</a>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("""
-<hr>
-<p style='text-align:center; color: gray;'>© 2025 TrustVault.ai — All rights reserved.</p>
+<div class="feature-section">
+    <h2>Why TrustVault?</h2>
+    <p>EU AI Act. SOC 2. HIPAA. Regulations demand AI verifiability and traceability.<br>
+    TrustVault makes every interaction audit-proof — immutable storage, certification, evaluator marketplace and compliance automation.</p>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="feature-section">
+    <h2>For Investors and Partners</h2>
+    <p>Access our Investor Agent to learn about market, roadmap, competition and why we are building the next critical infrastructure for enterprise AI trust.</p>
+    <a href="/Investor_Pitch_Agent" class="cta-button">📊 Open Investor Agent</a>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="footer">
+    © 2025 TrustVault.ai — All rights reserved.
+</div>
 """, unsafe_allow_html=True)
