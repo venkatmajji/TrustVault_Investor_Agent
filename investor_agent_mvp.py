@@ -1,4 +1,4 @@
-# Investor Pitch Agent - Clean Version (Remove Suggested Next Question)
+# Investor Pitch Agent - Updated Version (3 Column Questions, Clickable, Unified Answer Box)
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -81,6 +81,8 @@ st.markdown("""
 .subheader-text {text-align: center;color: gray;margin-bottom: 20px;font-size: 18px;}
 .cta-button {background-color: #2563eb;color: white;padding: 12px 24px;border-radius: 8px;text-decoration: none;font-weight: bold;display: inline-block;}
 .section-header {background-color: #eff6ff;padding: 10px;border-radius: 8px;color: #2563eb;font-weight: bold;text-align: center;font-size: 20px;margin-bottom: 10px;}
+.question-button {background-color: #e0e7ff;color: #1e3a8a;padding: 10px 18px;border-radius: 12px;font-size: 16px;margin: 5px;cursor: pointer; border: none; width: 100%; text-align: center;}
+.question-button:hover {background-color: #c7d2fe;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -91,7 +93,7 @@ st.markdown("<div class='subheader-text'><b>TrustVault provides an immutable aud
 st.markdown("<div class='subheader-text'>Ask our AI agent or browse/download the pitch deck below. Your questions answered in real-time.</div>", unsafe_allow_html=True)
 st.markdown("<div class='section-header'>💬 Ask TrustVault Investor Agent</div>", unsafe_allow_html=True)
 
-# Example questions (no suggested next question)
+# Example questions (3 columns now)
 example_questions = [
     "What problem does TrustVault solve?",
     "How do you make money?",
@@ -101,23 +103,28 @@ example_questions = [
     "Why should we invest?"
 ]
 
-st.markdown("#### Example Questions")
-for q in example_questions:
-    if st.button(q):
-        user_query = q
-        result = qa({'question': user_query})
-        answer = result['answer']
+st.markdown("#### Example Questions (Click to Ask)")
+cols = st.columns(3)
+selected_question = None
+for idx, q in enumerate(example_questions):
+    if cols[idx % 3].button(q, key=q):
+        selected_question = q
 
-        st.markdown(f"<div class='chat-box'><b>You:</b> {user_query}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
-        log_to_trustvault(user_query, answer)
+# Unified answer box
+if selected_question:
+    result = qa({'question': selected_question})
+    answer = result['answer']
 
-user_query = st.text_input("Or ask your own question here:")
+    st.markdown(f"<div class='chat-box'><b>You asked:</b> {selected_question}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
+    log_to_trustvault(selected_question, answer)
+
+user_query = st.text_input("Or type your own question here:")
 if user_query:
     result = qa({'question': user_query})
     answer = result['answer']
 
-    st.markdown(f"<div class='chat-box'><b>You:</b> {user_query}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='chat-box'><b>You asked:</b> {user_query}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
     log_to_trustvault(user_query, answer)
 
