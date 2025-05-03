@@ -1,4 +1,4 @@
-# Investor Pitch Agent - FINAL FINAL FINAL VERSION (Suggested Question → Input Box Prefill for Perfect UX)
+# Investor Pitch Agent - FINAL FINAL FINAL FINAL VERSION (Suggested + Manual Input Perfect UX)
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -98,6 +98,8 @@ st.markdown("<div class='section-header'>💬 Ask TrustVault Investor Agent</div
 
 if "query_input" not in st.session_state:
     st.session_state.query_input = ""
+if "manual_input" not in st.session_state:
+    st.session_state.manual_input = ""
 
 example_questions = [
     "What problem does TrustVault solve?",
@@ -116,20 +118,29 @@ for idx, q in enumerate(example_questions):
         if st.button(f"👉 {q}", key=q):
             st.session_state.query_input = q
 
-query = st.text_input("Suggested question or type here and click Enter:", value=st.session_state.query_input)
+# Determine default prefill
+if st.session_state.query_input:
+    default_value = st.session_state.query_input
+else:
+    default_value = st.session_state.manual_input
 
-if query:
-    result = qa({'question': query})
+user_query = st.text_input("Your suggested question here or type your own:", value=default_value)
+
+if user_query and user_query != st.session_state.manual_input:
+    st.session_state.manual_input = user_query
+
+if user_query:
+    result = qa({'question': user_query})
     answer = result['answer']
 
-    st.markdown(f"<div class='chat-box'><b>You:</b> {query}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='chat-box'><b>You:</b> {user_query}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
-    log_to_trustvault(query, answer)
+    log_to_trustvault(user_query, answer)
 
     st.session_state.query_input = ""
 
     st.markdown("#### Suggested Next Question:")
-    suggested_question = random.choice([q for q in example_questions if q != query])
+    suggested_question = random.choice([q for q in example_questions if q != user_query])
     if st.button(f"➡️ {suggested_question}", key="next_question"):
         st.session_state.query_input = suggested_question
 
