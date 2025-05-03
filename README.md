@@ -1,27 +1,31 @@
 
-# 🚀 TrustVault Investor Pitch Agent
+# TrustVault Landing + Investor Agent
 
-Interactive AI Agent to pitch TrustVault to investors.
+## 📌 Description
 
-## How to run locally
+This is the complete deployable app for TrustVault, including:
 
-```bash
+- Modern landing page (ArchitectGPT style)
+- Investor Agent page (interactive Q&A + pitch deck embed)
+- Multi-page Streamlit app structure
+
+## 🚀 How to Run
+
+1. Install dependencies
+
+```
 pip install -r requirements.txt
+```
+
+2. Place `TrustVault_Investor_One_Pager.pdf` in the root folder.
+
+3. Run the app
+
+```
 streamlit run Home.py
 ```
 
-## How to deploy on Streamlit Cloud
+## 📌 Pages
 
-- Push this folder to GitHub
-- Go to https://streamlit.io/cloud
-- Create new app -> select `investor_agent_mvp.py`
-- Deploy and share public link
-
-## Embed
-
-```html
-<iframe src="YOUR_STREAMLIT_APP_URL" width="100%" height="600"></iframe>
-```
-
-## License
-© 2025 TrustVault.ai — All rights reserved.
+- Home → Landing + links
+- Investor Pitch Agent → Q&A + pitch deck + investor information
