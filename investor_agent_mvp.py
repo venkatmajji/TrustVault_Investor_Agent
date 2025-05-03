@@ -1,4 +1,4 @@
-# Investor Pitch Agent - Updated Version (3 Column Questions, Clickable, Unified Answer Box)
+# Investor Pitch Agent - Updated Version (3 Column Questions, Clickable, Unified Answer Box, Clear Previous On Click, Blue Subheader Text)
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -78,7 +78,7 @@ st.markdown("""
 <style>
 .chat-box {background-color: #f9fafb;padding: 20px;border-radius: 12px;border: 1px solid #e5e7eb;margin-bottom: 20px;}
 .header-title {font-size: 42px;color: #2563eb;font-weight: bold;text-align: center;margin-bottom: 10px;margin-top: 10px;}
-.subheader-text {text-align: center;color: gray;margin-bottom: 20px;font-size: 18px;}
+.subheader-text {text-align: center;color: #2563eb;margin-bottom: 20px;font-size: 18px;}
 .cta-button {background-color: #2563eb;color: white;padding: 12px 24px;border-radius: 8px;text-decoration: none;font-weight: bold;display: inline-block;}
 .section-header {background-color: #eff6ff;padding: 10px;border-radius: 8px;color: #2563eb;font-weight: bold;text-align: center;font-size: 20px;margin-bottom: 10px;}
 .question-button {background-color: #e0e7ff;color: #1e3a8a;padding: 10px 18px;border-radius: 12px;font-size: 16px;margin: 5px;cursor: pointer; border: none; width: 100%; text-align: center;}
@@ -93,7 +93,10 @@ st.markdown("<div class='subheader-text'><b>TrustVault provides an immutable aud
 st.markdown("<div class='subheader-text'>Ask our AI agent or browse/download the pitch deck below. Your questions answered in real-time.</div>", unsafe_allow_html=True)
 st.markdown("<div class='section-header'>💬 Ask TrustVault Investor Agent</div>", unsafe_allow_html=True)
 
-# Example questions (3 columns now)
+# --- Session state to clear user input when clicking suggested question ---
+if "user_query" not in st.session_state:
+    st.session_state.user_query = ""
+
 example_questions = [
     "What problem does TrustVault solve?",
     "How do you make money?",
@@ -109,6 +112,7 @@ selected_question = None
 for idx, q in enumerate(example_questions):
     if cols[idx % 3].button(q, key=q):
         selected_question = q
+        st.session_state.user_query = ""  # Clear manual input when clicking suggested question
 
 # Unified answer box
 if selected_question:
@@ -119,8 +123,9 @@ if selected_question:
     st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
     log_to_trustvault(selected_question, answer)
 
-user_query = st.text_input("Or type your own question here:")
+user_query = st.text_input("Or type your own question here:", value=st.session_state.user_query)
 if user_query:
+    st.session_state.user_query = user_query
     result = qa({'question': user_query})
     answer = result['answer']
 
