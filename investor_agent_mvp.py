@@ -1,4 +1,4 @@
-# Investor Pitch Agent - FINAL FINAL VERSION (Fixed Suggested Questions + Suggested Next Questions + Session State)
+# Investor Pitch Agent - FINAL FINAL FINAL VERSION (Suggested Question → Input Box Prefill for Perfect UX)
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -96,14 +96,9 @@ st.markdown("<div class='subheader-text'><b>TrustVault provides an immutable aud
 st.markdown("<div class='subheader-text'>Ask our AI agent or browse/download the pitch deck below. Your questions answered in real-time.</div>", unsafe_allow_html=True)
 st.markdown("<div class='section-header'>💬 Ask TrustVault Investor Agent</div>", unsafe_allow_html=True)
 
-# Session State setup
-if "query" not in st.session_state:
-    st.session_state.query = None
+if "query_input" not in st.session_state:
+    st.session_state.query_input = ""
 
-if "queued_question" not in st.session_state:
-    st.session_state.queued_question = None
-
-# Suggested questions (clickable chips)
 example_questions = [
     "What problem does TrustVault solve?",
     "How do you make money?",
@@ -114,41 +109,33 @@ example_questions = [
 ]
 
 cols = st.columns(2)
-clicked_question = None
 
 for idx, q in enumerate(example_questions):
     col = cols[idx % 2]
     with col:
         if st.button(f"👉 {q}", key=q):
-            clicked_question = q
+            st.session_state.query_input = q
 
-if clicked_question:
-    st.session_state.query = clicked_question
-
-# Determine query
-query = st.session_state.queued_question or st.session_state.query or st.text_input("Ask your question here:")
+query = st.text_input("Suggested question or type here and click Enter:", value=st.session_state.query_input)
 
 if query:
     result = qa({'question': query})
     answer = result['answer']
+
     st.markdown(f"<div class='chat-box'><b>You:</b> {query}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
     log_to_trustvault(query, answer)
 
-    st.session_state.query = query
-    st.session_state.queued_question = None
+    st.session_state.query_input = ""
 
     st.markdown("#### Suggested Next Question:")
     suggested_question = random.choice([q for q in example_questions if q != query])
     if st.button(f"➡️ {suggested_question}", key="next_question"):
-        st.session_state.queued_question = suggested_question
-        st.experimental_rerun()
+        st.session_state.query_input = suggested_question
 
-# Pitch deck viewer
 st.markdown("<div class='section-header'>📊 Investor Pitch Deck Viewer & Download</div>", unsafe_allow_html=True)
 st.components.v1.iframe("https://docs.google.com/presentation/d/e/2PACX-1vSDzdc5x-xYZn3vCGhBiUxtK0Tmdkd9ufjXmja6mMaLcIyLkR9M61j_YszleNivSA/embed?start=false&loop=false&delayms=3000", height=550)
 
-# Download pitch deck
 st.markdown("### 📥 Download Pitch Deck PDF")
 with st.form("download_form"):
     email = st.text_input("Enter your email to download the pitch deck")
