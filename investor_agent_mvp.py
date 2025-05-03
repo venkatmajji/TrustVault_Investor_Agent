@@ -1,4 +1,4 @@
-# Investor Pitch Agent - Updated Version (3 Column Questions, Clickable, Unified Answer Box, Clear Previous On Click, Blue Subheader Text)
+# Investor Pitch Agent - FINAL FIXED VERSION (Proper Clear on Suggested Click + Unified Answer)
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -93,9 +93,12 @@ st.markdown("<div class='subheader-text'><b>TrustVault provides an immutable aud
 st.markdown("<div class='subheader-text'>Ask our AI agent or browse/download the pitch deck below. Your questions answered in real-time.</div>", unsafe_allow_html=True)
 st.markdown("<div class='section-header'>💬 Ask TrustVault Investor Agent</div>", unsafe_allow_html=True)
 
-# --- Session state to clear user input when clicking suggested question ---
+# --- Session state ---
 if "user_query" not in st.session_state:
     st.session_state.user_query = ""
+
+if "answer" not in st.session_state:
+    st.session_state.answer = ""
 
 example_questions = [
     "What problem does TrustVault solve?",
@@ -112,16 +115,16 @@ selected_question = None
 for idx, q in enumerate(example_questions):
     if cols[idx % 3].button(q, key=q):
         selected_question = q
-        st.session_state.user_query = ""  # Clear manual input when clicking suggested question
+        st.session_state.user_query = ""
+        st.session_state.answer = ""
 
-# Unified answer box
 if selected_question:
     result = qa({'question': selected_question})
     answer = result['answer']
+    st.session_state.answer = answer
 
-    st.markdown(f"<div class='chat-box'><b>You asked:</b> {selected_question}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
-    log_to_trustvault(selected_question, answer)
+if st.session_state.answer:
+    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {st.session_state.answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
 
 user_query = st.text_input("Or type your own question here:", value=st.session_state.user_query)
 if user_query:
@@ -129,9 +132,10 @@ if user_query:
     result = qa({'question': user_query})
     answer = result['answer']
 
-    st.markdown(f"<div class='chat-box'><b>You asked:</b> {user_query}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
-    log_to_trustvault(user_query, answer)
+    st.session_state.answer = answer
+
+if st.session_state.answer:
+    st.markdown(f"<div class='chat-box'><b>TrustVault Agent:</b> {st.session_state.answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
 
 st.markdown("<div class='section-header'>📊 Investor Pitch Deck Viewer & Download</div>", unsafe_allow_html=True)
 st.components.v1.iframe("https://docs.google.com/presentation/d/e/2PACX-1vSDzdc5x-xYZn3vCGhBiUxtK0Tmdkd9ufjXmja6mMaLcIyLkR9M61j_YszleNivSA/embed?start=false&loop=false&delayms=3000", height=550)
