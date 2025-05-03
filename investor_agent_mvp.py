@@ -1,4 +1,4 @@
-# Investor Pitch Agent - FINAL FINAL FINAL FINAL VERSION (Suggested + Manual Input Perfect UX)
+# Investor Pitch Agent - TRUE FINAL FIX VERSION (Ask button required for both suggested and manual input)
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
@@ -100,6 +100,8 @@ if "query_input" not in st.session_state:
     st.session_state.query_input = ""
 if "manual_input" not in st.session_state:
     st.session_state.manual_input = ""
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
 
 example_questions = [
     "What problem does TrustVault solve?",
@@ -117,19 +119,17 @@ for idx, q in enumerate(example_questions):
     with col:
         if st.button(f"👉 {q}", key=q):
             st.session_state.query_input = q
+            st.session_state.submitted = False
 
-# Determine default prefill
-if st.session_state.query_input:
-    default_value = st.session_state.query_input
-else:
-    default_value = st.session_state.manual_input
+prefill_value = st.session_state.query_input or st.session_state.manual_input
+user_query = st.text_input("Your suggested question here or type your own:", value=prefill_value)
+submit = st.button("Ask")
 
-user_query = st.text_input("Your suggested question here or type your own:", value=default_value)
-
-if user_query and user_query != st.session_state.manual_input:
+if submit:
+    st.session_state.submitted = True
     st.session_state.manual_input = user_query
 
-if user_query:
+if st.session_state.submitted:
     result = qa({'question': user_query})
     answer = result['answer']
 
@@ -138,11 +138,13 @@ if user_query:
     log_to_trustvault(user_query, answer)
 
     st.session_state.query_input = ""
+    st.session_state.submitted = False
 
     st.markdown("#### Suggested Next Question:")
     suggested_question = random.choice([q for q in example_questions if q != user_query])
     if st.button(f"➡️ {suggested_question}", key="next_question"):
         st.session_state.query_input = suggested_question
+        st.session_state.submitted = False
 
 st.markdown("<div class='section-header'>📊 Investor Pitch Deck Viewer & Download</div>", unsafe_allow_html=True)
 st.components.v1.iframe("https://docs.google.com/presentation/d/e/2PACX-1vSDzdc5x-xYZn3vCGhBiUxtK0Tmdkd9ufjXmja6mMaLcIyLkR9M61j_YszleNivSA/embed?start=false&loop=false&delayms=3000", height=550)
