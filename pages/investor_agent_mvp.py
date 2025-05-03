@@ -1,48 +1,75 @@
-# TrustVault Landing Page with Investor Agent Link
 
 import streamlit as st
+from langchain_community.chat_models import ChatOpenAI
+from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferMemory
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+from langchain.document_loaders import PyPDFLoader
+import datetime
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
-st.set_page_config(page_title="TrustVault - Immutable Audit Layer for AI", page_icon="🔒", layout="wide")
+st.set_page_config(page_title="TrustVault Investor Agent", page_icon="📊", layout="wide")
 
-st.markdown("""
-<style>
-.header-title {font-size: 50px;color: #2563eb;font-weight: bold;text-align: center;margin-bottom: 20px;margin-top: 30px;}
-.subheader-text {text-align: center;color: #4b5563;margin-bottom: 40px;font-size: 22px;}
-.section-header {background-color: #eff6ff;padding: 14px;border-radius: 8px;color: #2563eb;font-weight: bold;text-align: center;font-size: 26px;margin-bottom: 10px;}
-.link-box {background-color: #ffffff;padding: 24px;border-radius: 12px;border: 2px solid #2563eb;margin: 10px;text-align: center;}
-.link-box a {text-decoration: none; color: #2563eb; font-size: 20px; font-weight: bold;}
-.link-box:hover {background-color: #dbeafe;}
-</style>
-""", unsafe_allow_html=True)
+pdf_loader = PyPDFLoader("TrustVault_Investor_One_Pager.pdf")
+pdf_docs = pdf_loader.load()
+pdf_texts = [d.page_content for d in pdf_docs]
 
-st.markdown("<div class='header-title'>TrustVault</div>", unsafe_allow_html=True)
+additional_docs = [
+    "TrustVault is the immutable audit layer for AI and LLMs. Capture, certify, and verify all interactions.",
+    "Product: SDK + WORM storage + Merkle hashing + daily PDF seals + Evaluator Marketplace.",
+    "TAM: $15B+, SAM: $2.5B, SOM: $100M wedge from regulated AI teams.",
+    "Business model: Free → $199 Pro → $999 Compliance → $50k+ Enterprise.",
+    "Roadmap: Immutable Vault → Real-time evaluator proxy → Evaluator Marketplace → Compliance automation.",
+    "Why now: EU AI Act, SOC 2, HIPAA and enterprise AI buyers all need traceability today.",
+    "Competitive edge: Only product with WORM+Merkle+root cert + marketplace + audit-first design."
+]
 
-st.markdown("<div class='subheader-text'>The Immutable Audit Layer for AI & LLMs — Capture, Certify, Verify.</div>", unsafe_allow_html=True)
+all_docs = pdf_texts + additional_docs
 
-st.markdown("<div class='section-header'>🚀 Explore TrustVault</div>", unsafe_allow_html=True)
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+vectorstore = FAISS.from_texts(all_docs, embeddings)
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+llm = ChatOpenAI(model_name="gpt-4o", temperature=0)
+qa = ConversationalRetrievalChain.from_llm(llm, vectorstore.as_retriever(), memory=memory)
 
-col1, col2 = st.columns(2)
+st.markdown("<h1 style='color:#2563eb;'>TrustVault Investor Agent</h1>", unsafe_allow_html=True)
+st.markdown("#### Ask about the company, product, team, and roadmap")
 
-with col1:
-    st.markdown("""
-    <div class='link-box'>
-        <a href="/Investor_Pitch_Agent">💼 Investor Agent → Learn and Ask About Our Company</a>
-    </div>
-    """, unsafe_allow_html=True)
+if "answer" not in st.session_state:
+    st.session_state.answer = ""
+if "selected_question" not in st.session_state:
+    st.session_state.selected_question = ""
 
-with col2:
-    st.markdown("""
-    <div class='link-box'>
-        <a href="mailto:founder@trustvault.ai">📩 Contact Founders → Book Intro Call</a>
-    </div>
-    """, unsafe_allow_html=True)
+example_questions = [
+    "👉 What problem does TrustVault solve?",
+    "👉 How do you make money?",
+    "👉 What is your roadmap for the next 12 months?",
+    "👉 Who is your competition?",
+    "👉 How big is the market opportunity?",
+    "👉 Why should we invest?",
+    "👉 Who is the founding team?",
+    "👉 Is there founder to product fit?",
+    "👉Is there a strongproduct market fit??"
+]
 
-st.markdown("""
-<hr>
-<p style='text-align:center; color: gray;'>© 2025 TrustVault.ai — All rights reserved.</p>
-""", unsafe_allow_html=True)
+st.markdown("#### Example Questions")
+cols = st.columns(3)
+for idx, q in enumerate(example_questions):
+    if cols[idx % 3].button(q, key=q):
+        st.session_state.selected_question = q
+        st.session_state.answer = ""
 
-# --- Investor Agent embedded here for easy multi-page app ---
+if st.session_state.selected_question:
+    result = qa({'question': st.session_state.selected_question})
+    answer = result['answer']
+    if "I don't know" in answer or len(answer.strip()) < 10:
+        answer = "This is not covered directly in our materials, but TrustVault is designed to be enterprise-grade and compliant."
 
-st.markdown("<div class='section-header'>💬 Investor Agent (Quick Access)</div>", unsafe_allow_html=True)
-st.page_link("/Investor_Pitch_Agent", label="Open Investor Agent", icon="📊")
+    st.session_state.answer = answer
+    st.markdown(f"<div style='background-color:#f9fafb;padding:20px;border-radius:12px;border:1px solid #e5e7eb;'>{st.session_state.answer.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
+
+st.components.v1.iframe("https://docs.google.com/presentation/d/e/2PACX-1vSDzdc5x-xYZn3vCGhBiUxtK0Tmdkd9ufjXmja6mMaLcIyLkR9M61j_YszleNivSA/embed?start=false&loop=false&delayms=3000", height=550)
